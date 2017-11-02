@@ -33,7 +33,7 @@ clean:
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 	if [ -f $(BINARY)-linux-$(GOARCH) ] ; then rm $(BINARY)-linux-$(GOARCH) ; fi
 	if [ -f $(BINARY)-darwin-$(GOARCH) ] ; then rm $(BINARY)-darwin-$(GOARCH) ; fi
-	if [ -f $(BINARY)-windows-$(GOARCH).exe ] ; then rm $(BINARY)-windows-$(GOARCH) ; fi
+	if [ -f $(BINARY)-windows-$(GOARCH).exe ] ; then rm $(BINARY)-windows-$(GOARCH).exe ; fi
 
 
 .PHONY: all-platforms linux darwin windows install clean
