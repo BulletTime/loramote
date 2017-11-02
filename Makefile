@@ -24,7 +24,7 @@ darwin:
 	env GOOS=darwin GOARCH=${GOARCH} go build ${LDFLAGS} -o $(BINARY)-darwin-$(GOARCH) main.go
 
 windows:
-	env GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o $(BINARY)-windows-$(GOARCH) main.go
+	env GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o $(BINARY)-windows-$(GOARCH).exe main.go
 
 install:
 	go install ${LDFLAGS} ./...
@@ -33,7 +33,7 @@ clean:
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 	if [ -f $(BINARY)-linux-$(GOARCH) ] ; then rm $(BINARY)-linux-$(GOARCH) ; fi
 	if [ -f $(BINARY)-darwin-$(GOARCH) ] ; then rm $(BINARY)-darwin-$(GOARCH) ; fi
-	if [ -f $(BINARY)-windows-$(GOARCH) ] ; then rm $(BINARY)-windows-$(GOARCH) ; fi
+	if [ -f $(BINARY)-windows-$(GOARCH).exe ] ; then rm $(BINARY)-windows-$(GOARCH) ; fi
 
 
 .PHONY: all-platforms linux darwin windows install clean
