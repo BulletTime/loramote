@@ -5,4 +5,4 @@ This CLI tool makes use of the [rn2483 api](https://github.com/BulletTime/RN2483
 as a gateway.
 
 This is a work in progress and does not support LoRaWAN at the moment. Keep in mind that the LoRaMote can't replace a real
-gateway as this module can only receive on a fixed frequency and spreading factor in contrast with a real gateway.
+gateway as this module can only receive on a fixed frequency and spreading factor in contrast with a real gateway, which monitors multiple frequencies and spreading factors.
