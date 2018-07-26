@@ -24,30 +24,36 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/cli"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	debug   bool
+)
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "LoRaMote",
+	Use:   "loramote",
 	Short: "A CLI to communicate with the LoRaMote",
-	Long:  ``, // TODO
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		var logLevel = log.InfoLevel
+
+		if debug {
+			logLevel = log.DebugLevel
+		}
+
+		log.SetHandler(cli.Default)
+		log.SetLevel(logLevel)
+	},
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
-	Run: func(cmd *cobra.Command, args []string) {
-		if version, err := cmd.Flags().GetBool("version"); err == nil && version {
-			fmt.Printf(
-				"Version: %s\nBuild: %s\n",
-				viper.GetString("version"),
-				viper.GetString("build"),
-			)
-		}
-	},
+	//Run: func(cmd *cobra.Command, args []string) {	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -65,20 +71,12 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.LoRaMote.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.loramote.yaml)")
+	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "enable debug logs")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	RootCmd.Flags().BoolP("version", "v", false, "build and version info")
-
-	RootCmd.PersistentFlags().StringP("serial", "s", "/dev/cu.usbmodem14111", "set the serial device")
-	RootCmd.PersistentFlags().IntP("baud", "b", 9600, "set the baud rate")
-	viper.BindPFlag("device.serial", RootCmd.PersistentFlags().Lookup("serial"))
-	viper.BindPFlag("device.baud", RootCmd.PersistentFlags().Lookup("baud"))
-	viper.SetDefault("device.serial", "/dev/cu.usbmodem14111")
-	viper.SetDefault("device.baud", 9600)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -96,7 +94,7 @@ func initConfig() {
 
 		// Search config in home directory with name ".LoRaMote" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".LoRaMote")
+		viper.SetConfigName(".loramote")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

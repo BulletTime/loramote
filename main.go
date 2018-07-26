@@ -21,24 +21,20 @@
 package main
 
 import (
-	"log"
-
-	"github.com/bullettime/logger"
 	"github.com/bullettime/loramote/cmd"
 	"github.com/spf13/viper"
 )
 
 var (
-	version = "1.0"
-	build   = "unkown"
+	version   = "0.1"
+	build     = "unknown"
+	buildDate = "unknown"
 )
 
 func main() {
 	viper.Set("version", version)
 	viper.Set("build", build)
-
-	logger.Init("loramote.log", false, log.Ldate|log.Ltime|log.Lshortfile, logger.LDebug|logger.LWarning|logger.LError)
-	logger.Debug.Println("Logger initialized.")
+	viper.Set("buildDate", buildDate)
 
 	cmd.Execute()
 }

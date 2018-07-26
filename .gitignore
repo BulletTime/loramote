@@ -1,4 +1,7 @@
-loramote-darwin-amd64
-loramote-linux-amd64
-loramote-windows-amd64.exe
-loramote.log
+vendor/*
+!vendor/vendor.json
+docker/*
+!docker/Dockerfile
+.gitignore
+*.log
+build

@@ -1,39 +1,29 @@
-GOARCH = amd64
+.PHONY: default all build config clean
+VERSION := 0.1.0
+COMMIT := $(shell git describe --always)
+GOOS ?= darwin
+GOARCH ?= amd64
+BUILD_DATE = `date -u +%Y-%m-%dT%H:%M.%SZ`
+BUILD_NAME = loramote
+MAIN_FILE = main.go
 
-SOURCEDIR = .
-SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
+.SILENT:
+default: clean build
 
-BINARY=loramote
+all: clean build config
 
-VERSION = 1.0
-COMMIT = `git rev-parse HEAD`
+build:
+	echo "[===] Build for $(GOOS) $(GOARCH) [===]"
+	mkdir -p build
+	echo "[GO BUILD] $(MAIN_FILE)"
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags "-X main.version=$(VERSION) -X main.build=$(COMMIT) -X main.buildDate=$(BUILD_DATE)" -o build/$(BUILD_NAME) $(MAIN_FILE)
 
-LDFLAGS = -ldflags "-X main.version=${VERSION} -X main.build=${COMMIT}"
-
-# .DEFAULT_GOAL: $(BINARY)
-#
-# $(BINARY): $(SOURCES)
-# 	go build ${LDFLAGS} -o ${BINARY} main.go
-
-all: $(SOURCES) linux darwin windows
-
-linux:
-	env GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o $(BINARY)-linux-$(GOARCH) main.go
-
-darwin:
-	env GOOS=darwin GOARCH=${GOARCH} go build ${LDFLAGS} -o $(BINARY)-darwin-$(GOARCH) main.go
-
-windows:
-	env GOOS=windows GOARCH=${GOARCH} go build ${LDFLAGS} -o $(BINARY)-windows-$(GOARCH).exe main.go
-
-install:
-	go install ${LDFLAGS} ./...
+config:
+	test -f build/$(BUILD_NAME) || $(MAKE) build
+	echo "[===] Writing config to: ~/.$(BUILD_NAME).yaml [===]"
+	build/$(BUILD_NAME) config > ~/.$(BUILD_NAME).yaml
 
 clean:
-	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
-	if [ -f $(BINARY)-linux-$(GOARCH) ] ; then rm $(BINARY)-linux-$(GOARCH) ; fi
-	if [ -f $(BINARY)-darwin-$(GOARCH) ] ; then rm $(BINARY)-darwin-$(GOARCH) ; fi
-	if [ -f $(BINARY)-windows-$(GOARCH).exe ] ; then rm $(BINARY)-windows-$(GOARCH).exe ; fi
-
-
-.PHONY: all-platforms linux darwin windows install clean
+	echo "[===] Cleaning up workspace [===]"
+	rm -rf build
+	rm -rf $(BUILD_NAME).log

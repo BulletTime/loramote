@@ -1,4 +1,4 @@
-// Copyright © 2017 Sven Agneessens <sven.agneessens@gmail.com>
+// Copyright © 2018 Sven Agneessens <sven.agneessens@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,26 +21,59 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
+	"text/template"
+	"github.com/apex/log"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Get build and version information",
+const configTemplate = `# LoRaMote device configuration
+mote:
+  # Device Serial Address
+  #
+  # Example:
+  # /dev/ttyUSB
+  address: {{viper "mote.address"}}
+
+  # Device Baud Rate
+  #
+  # Example:
+  # 9600
+  baud: {{viper "mote.baud"}}
+
+  # Device Read Timeout
+  #
+  # The read timeout in milliseconds
+  timeout: {{viper "mote.timeout"}}
+`
+
+// configCmd represents the config command
+var configCmd = &cobra.Command{
+	Use:   "config",
+	Short: "Print the loramote configuration file",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf(
-			"Version: %s\nBuild: %s\nBuild Date: %s\n",
-			viper.GetString("version"),
-			viper.GetString("build"),
-			viper.GetString("buildDate"),
-		)
+		funcMap := template.FuncMap{
+			"viper": viper.GetString,
+		}
+
+		tmpl, err := template.New("config").Funcs(funcMap).Parse(configTemplate)
+		if err != nil {
+			log.Fatalf("[config] parsing: %s", err)
+		}
+
+		err = tmpl.Execute(os.Stdout, "config")
+		if err != nil {
+			log.Fatalf("[config] execution: %s", err)
+		}
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(configCmd)
+
+	// Mote defaults
+	viper.SetDefault("mote.address", "/dev/cu.usbmodem14321")
+	viper.SetDefault("mote.baud", 115200)
+	viper.SetDefault("mote.timeout", 500)
 }
