@@ -22,36 +22,41 @@ package cmd
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/apex/log"
-	"github.com/bullettime/rn2483"
 	"github.com/spf13/cobra"
+	"github.com/bullettime/rn2483"
 	"github.com/spf13/viper"
+	"github.com/apex/log"
+	"time"
+	"strings"
 )
 
 var (
-	timeout uint8
-	dataRate uint8
+	latitude float32
+	longitude float32
 )
 
-// adrCmd represents the adr command
-var adrCmd = &cobra.Command{
-	Use:   "adr",
-	Short: "Test ADR algorithm",
+// ddrCmd represents the ddr command
+var ddrCmd = &cobra.Command{
+	Use:   "ddr",
+	Short: "Test DDR algorithm",
 	Run: func(cmd *cobra.Command, args []string) {
-		TestADR()
+		TestDDR()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(adrCmd)
+	RootCmd.AddCommand(ddrCmd)
 
-	adrCmd.Flags().Uint8VarP(&dataRate, "datarate", "r", 0, "set data rate (default 0)")
-	adrCmd.Flags().Uint8VarP(&timeout, "timeout", "t", 10, "set timeout in minutes")
+	ddrCmd.Flags().Uint8VarP(&dataRate, "datarate", "r", 0, "set data rate (default 0)")
+	ddrCmd.Flags().Uint8VarP(&timeout, "timeout", "t", 10, "set timeout in minutes")
+
+	ddrCmd.Flags().Float32Var(&latitude, "lat", 0, "set the latitude")
+	ddrCmd.MarkFlagRequired("lat")
+	ddrCmd.Flags().Float32Var(&longitude, "lon", 0, "set the longitude")
+	ddrCmd.MarkFlagRequired("lon")
 }
 
-func TestADR() {
+func TestDDR() {
 	// setup loggers
 	rn2483.ERROR = myLogger{level: "ERROR"}
 	rn2483.WARN = myLogger{level: "WARN"}
@@ -75,7 +80,7 @@ func TestADR() {
 	rn2483.MacSetApplicationKey(viper.GetString("lora.appkey"))
 	rn2483.MacSetDataRate(dataRate)
 	rn2483.MacSetPowerIndex(rn2483.DBm14)
-	rn2483.MacSetADR(true)
+	rn2483.MacSetADR(false)
 
 	log.WithFields(log.Fields{
 		"data rate": rn2483.MacGetDataRate(),
@@ -99,6 +104,10 @@ func TestADR() {
 
 	log.WithField("duty cycle", dcycle).Info("new duty cycles configured")
 
+	// setup DDR call
+	payload := []byte(fmt.Sprintf("DDR|%.6f|%.6f", latitude, longitude))
+	rn2483.MacTx(false, 1, payload, ddrCallback)
+
 	// send message every 30 seconds
 	timeout := time.After(time.Minute * time.Duration(timeout))
 	tick := time.Tick(time.Second * 30)
@@ -109,7 +118,7 @@ func TestADR() {
 			log.Info("Timed out")
 			return
 		case <- tick:
-			rn2483.MacTx(false, 2, []byte("a"), nil)
+			rn2483.MacTx(false, 2, []byte("a"), ddrCallback)
 
 			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
 			//	log.WithField("data rate", dr).Info("new data rate")
@@ -119,32 +128,33 @@ func TestADR() {
 	}
 }
 
-type myLogger struct {
-	level string
-}
+//type receiveCallback func(port uint8, data []byte)
+func ddrCallback(port uint8, data []byte) {
+	if port == 1 {
+		dataString := string(data)
+		if strings.HasPrefix(dataString, "DDR|") {
+			dataString = strings.TrimPrefix(dataString, "DDR|")
 
-func (l myLogger) Println(v ...interface{}) {
-	switch l.level {
-	case "ERROR":
-		log.Error(fmt.Sprintln(v...))
-	case "WARN":
-		log.Warn(fmt.Sprintln(v...))
-	case "INFO":
-		log.Info(fmt.Sprintln(v...))
-	case "DEBUG":
-		log.Debug(fmt.Sprintln(v...))
-	}
-}
+			dr := uint8(0)
 
-func (l myLogger) Printf(format string, v ...interface{}) {
-	switch l.level {
-	case "ERROR":
-		log.Errorf(format, v...)
-	case "WARN":
-		log.Warnf(format, v...)
-	case "INFO":
-		log.Infof(format, v...)
-	case "DEBUG":
-		log.Debugf(format, v...)
+			switch dataString {
+			case "7":
+				dr = uint8(5)
+			case "8":
+				dr =uint8(4)
+			case "9":
+				dr = uint8(3)
+			case "10":
+				dr =uint8(2)
+			case "11":
+				dr = uint8(1)
+			case "12":
+				dr =uint8(0)
+			}
+
+			rn2483.MacSetDataRate(dr)
+
+			log.WithField("data rate", dr).Info("new data rate")
+		}
 	}
 }
