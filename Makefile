@@ -1,5 +1,5 @@
 .PHONY: default all build config clean
-VERSION := 0.1.0
+VERSION := 0.2.0
 COMMIT := $(shell git describe --always)
 GOOS ?= darwin
 GOARCH ?= amd64
@@ -16,7 +16,7 @@ build:
 	echo "[===] Build for $(GOOS) $(GOARCH) [===]"
 	mkdir -p build
 	echo "[GO BUILD] $(MAIN_FILE)"
-	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -a -ldflags "-X main.version=$(VERSION) -X main.build=$(COMMIT) -X main.buildDate=$(BUILD_DATE)" -o build/$(BUILD_NAME) $(MAIN_FILE)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=1 go build -a -ldflags "-X main.version=$(VERSION) -X main.build=$(COMMIT) -X main.buildDate=$(BUILD_DATE)" -o build/$(BUILD_NAME) $(MAIN_FILE)
 
 config:
 	test -f build/$(BUILD_NAME) || $(MAKE) build

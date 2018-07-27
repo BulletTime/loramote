@@ -15,6 +15,12 @@
 			"revisionTime": "2018-07-02T15:59:52Z"
 		},
 		{
+			"checksumSHA1": "2/lQz/QcbQsuYJXUi5HCqGm2YlM=",
+			"path": "github.com/bullettime/rn2483",
+			"revision": "97ae83551c319b446396f2d7b67d721ee83ef4a2",
+			"revisionTime": "2018-07-27T11:40:41Z"
+		},
+		{
 			"checksumSHA1": "HbOJxa+FsQ1TTsF+BkHAvzqqZv4=",
 			"path": "github.com/fatih/color",
 			"revision": "2d684516a8861da43017284349b7e303e809ac21",
@@ -175,6 +181,12 @@
 			"path": "github.com/spf13/viper",
 			"revision": "d493c32b69b8c6f2377bf30bc4d70267ffbc0793",
 			"revisionTime": "2018-07-10T12:30:20Z"
+		},
+		{
+			"checksumSHA1": "GEfHrZEDyPhPTdCcyeMffbFFoKE=",
+			"path": "github.com/tarm/serial",
+			"revision": "eaafced92e9619f03c72527efeab21e326f3bc36",
+			"revisionTime": "2018-01-14T05:17:09Z"
 		},
 		{
 			"checksumSHA1": "D5sLBEJArng5HCkJYSCtvD7xZNs=",

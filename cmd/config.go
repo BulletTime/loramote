@@ -21,11 +21,12 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"text/template"
+
 	"github.com/apex/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 const configTemplate = `# LoRaMote device configuration
@@ -46,6 +47,17 @@ mote:
   #
   # The read timeout in milliseconds
   timeout: {{viper "mote.timeout"}}
+
+# LoRaWAN network parameters
+lora:
+  # Device EUI
+  deveui: {{viper "lora.deveui"}}
+
+  # Application EUI
+  appeui: {{viper "lora.appeui"}}
+
+  # Application key
+  appkey: {{viper "lora.appkey"}}
 `
 
 // configCmd represents the config command
@@ -76,4 +88,9 @@ func init() {
 	viper.SetDefault("mote.address", "/dev/cu.usbmodem14321")
 	viper.SetDefault("mote.baud", 115200)
 	viper.SetDefault("mote.timeout", 500)
+
+	// LoRa defaults
+	viper.SetDefault("lora.deveui", "5BBB9C5635AA6A44")
+	viper.SetDefault("lora.appeui", "DB16677C761C2820")
+	viper.SetDefault("lora.appkey", "40CD1191788D4C121D202DEDDF19FC28")
 }
