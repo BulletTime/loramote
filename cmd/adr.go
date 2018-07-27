@@ -30,7 +30,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var dataRate uint8
+var (
+	timeout uint8
+	dataRate uint8
+)
 
 // adrCmd represents the adr command
 var adrCmd = &cobra.Command{
@@ -46,7 +49,8 @@ var adrCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(adrCmd)
 
-	adrCmd.Flags().Uint8VarP(&dataRate, "datarate", "r", 0, "set data rate (default: 0)")
+	adrCmd.Flags().Uint8VarP(&dataRate, "datarate", "r", 0, "set data rate (default 0)")
+	adrCmd.Flags().Uint8VarP(&timeout, "timeout", "t", 10, "set timeout in minutes")
 }
 
 func TestADR() {
@@ -98,17 +102,21 @@ func TestADR() {
 	log.WithField("duty cycle", dcycle).Info("new duty cycles configured")
 
 	// send message every 30 seconds
+	timeout := time.After(time.Minute * time.Duration(timeout))
 	tick := time.Tick(time.Second * 30)
 
 	for {
 		select {
-		case <-tick:
+		case <- timeout:
+			log.Info("Timed out")
+			return
+		case <- tick:
 			rn2483.MacTx(false, 1, []byte("a"), nil)
 
-			if dr := rn2483.MacGetDataRate(); dr != dataRate {
-				log.WithField("data rate", dr).Info("new data rate")
-				return
-			}
+			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
+			//	log.WithField("data rate", dr).Info("new data rate")
+			//	return
+			//}
 		}
 	}
 }
