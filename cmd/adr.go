@@ -109,7 +109,7 @@ func TestADR() {
 			log.Info("Timed out")
 			return
 		case <-tick:
-			rn2483.MacTx(false, 2, []byte("a"), nil)
+			rn2483.MacTx(true, 2, []byte("a"), nil)
 
 			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
 			//	log.WithField("data rate", dr).Info("new data rate")
