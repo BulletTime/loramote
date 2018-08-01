@@ -100,7 +100,7 @@ func TestADR() {
 	log.WithField("duty cycle", dcycle).Info("new duty cycles configured")
 
 	// send message every 30 seconds
-	timeout := time.After(time.Minute * time.Duration(timeout))
+	timeout := time.After(time.Minute * time.Duration(timeout) + time.Second * 30)
 	tick := time.Tick(time.Second * 30)
 
 	for {
