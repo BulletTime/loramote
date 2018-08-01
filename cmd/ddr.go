@@ -22,16 +22,17 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/bullettime/rn2483"
-	"github.com/spf13/viper"
-	"github.com/apex/log"
-	"time"
 	"strings"
+	"time"
+
+	"github.com/apex/log"
+	"github.com/bullettime/rn2483"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
-	latitude float32
+	latitude  float32
 	longitude float32
 )
 
@@ -109,15 +110,15 @@ func TestDDR() {
 	rn2483.MacTx(false, 1, payload, ddrCallback)
 
 	// send message every 30 seconds
-	timeout := time.After(time.Minute * time.Duration(timeout) + time.Second * 30)
+	timeout := time.After(time.Minute*time.Duration(timeout) + time.Second*30)
 	tick := time.Tick(time.Second * 30)
 
 	for {
 		select {
-		case <- timeout:
+		case <-timeout:
 			log.Info("Timed out")
 			return
-		case <- tick:
+		case <-tick:
 			rn2483.MacTx(false, 2, []byte("a"), ddrCallback)
 
 			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
@@ -141,15 +142,15 @@ func ddrCallback(port uint8, data []byte) {
 			case "7":
 				dr = uint8(5)
 			case "8":
-				dr =uint8(4)
+				dr = uint8(4)
 			case "9":
 				dr = uint8(3)
 			case "10":
-				dr =uint8(2)
+				dr = uint8(2)
 			case "11":
 				dr = uint8(1)
 			case "12":
-				dr =uint8(0)
+				dr = uint8(0)
 			}
 
 			rn2483.MacSetDataRate(dr)

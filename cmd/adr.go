@@ -31,7 +31,7 @@ import (
 )
 
 var (
-	timeout uint8
+	timeout  uint8
 	dataRate uint8
 )
 
@@ -100,15 +100,15 @@ func TestADR() {
 	log.WithField("duty cycle", dcycle).Info("new duty cycles configured")
 
 	// send message every 30 seconds
-	timeout := time.After(time.Minute * time.Duration(timeout) + time.Second * 30)
+	timeout := time.After(time.Minute*time.Duration(timeout) + time.Second*30)
 	tick := time.Tick(time.Second * 30)
 
 	for {
 		select {
-		case <- timeout:
+		case <-timeout:
 			log.Info("Timed out")
 			return
-		case <- tick:
+		case <-tick:
 			rn2483.MacTx(false, 2, []byte("a"), nil)
 
 			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
