@@ -78,14 +78,14 @@ func TestADR() {
 	rn2483.MacSetDataRate(dataRate)
 	rn2483.MacSetPowerIndex(rn2483.DBm14)
 	rn2483.MacSetADR(true)
-	linkchk := uint16(600)
-	rn2483.MacSetLinkCheck(linkchk)
+	//linkchk := uint16(660)
+	//rn2483.MacSetLinkCheck(linkchk)
 
 	log.WithFields(log.Fields{
 		"data rate":  rn2483.MacGetDataRate(),
 		"power":      rn2483.MacGetPowerIndex(),
 		"adr":        rn2483.MacGetADR(),
-		"link check": linkchk,
+		//"link check": linkchk,
 	}).Info("mac settings configured")
 
 	// join the network
@@ -108,13 +108,21 @@ func TestADR() {
 	timeout := time.After(time.Minute*time.Duration(timeout) + time.Second*30)
 	tick := time.Tick(time.Second * 30)
 
+	counter := 0
+
 	for {
 		select {
 		case <-timeout:
 			log.Info("Timed out")
 			return
 		case <-tick:
-			rn2483.MacTx(confirmed, 2, []byte("a"), nil)
+			if counter > 0 && counter % 20 == 0 {
+				rn2483.MacTx(true, 2, []byte("a"), nil)
+			} else {
+				rn2483.MacTx(confirmed, 2, []byte("a"), nil)
+			}
+
+			counter++
 
 			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
 			//	log.WithField("data rate", dr).Info("new data rate")
