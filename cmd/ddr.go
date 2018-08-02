@@ -108,10 +108,17 @@ func TestDDR() {
 	// setup DDR call
 	payload := []byte(fmt.Sprintf("DDR|%.6f|%.6f", latitude, longitude))
 	rn2483.MacTx(false, 1, payload, ddrCallback)
+	log.WithFields(log.Fields{
+		"confirmed": false,
+		"port": 1,
+		"data": string(payload),
+	}).Infof("uplink frame %v", 0)
 
 	// send message every 30 seconds
 	timeout := time.After(time.Minute*time.Duration(timeout) + time.Second*30)
 	tick := time.Tick(time.Second * 30)
+
+	counter := 1
 
 	for {
 		select {
@@ -120,11 +127,13 @@ func TestDDR() {
 			return
 		case <-tick:
 			rn2483.MacTx(false, 2, []byte("a"), ddrCallback)
+			log.WithFields(log.Fields{
+				"confirmed": false,
+				"port": 2,
+				"data": "a",
+			}).Infof("uplink frame %v", counter)
 
-			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
-			//	log.WithField("data rate", dr).Info("new data rate")
-			//	return
-			//}
+			counter++
 		}
 	}
 }
