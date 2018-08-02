@@ -31,8 +31,9 @@ import (
 )
 
 var (
-	timeout  uint8
-	dataRate uint8
+	timeout   uint8
+	dataRate  uint8
+	confirmed bool
 )
 
 // adrCmd represents the adr command
@@ -49,6 +50,7 @@ func init() {
 
 	adrCmd.Flags().Uint8VarP(&dataRate, "datarate", "r", 0, "set data rate (default 0)")
 	adrCmd.Flags().Uint8VarP(&timeout, "timeout", "t", 10, "set timeout in minutes")
+	adrCmd.Flags().BoolVarP(&confirmed, "confirmed", "c", false, "use confirmed uplink")
 }
 
 func TestADR() {
@@ -76,11 +78,14 @@ func TestADR() {
 	rn2483.MacSetDataRate(dataRate)
 	rn2483.MacSetPowerIndex(rn2483.DBm14)
 	rn2483.MacSetADR(true)
+	linkchk := uint16(600)
+	rn2483.MacSetLinkCheck(linkchk)
 
 	log.WithFields(log.Fields{
-		"data rate": rn2483.MacGetDataRate(),
-		"power":     rn2483.MacGetPowerIndex(),
-		"adr":       rn2483.MacGetADR(),
+		"data rate":  rn2483.MacGetDataRate(),
+		"power":      rn2483.MacGetPowerIndex(),
+		"adr":        rn2483.MacGetADR(),
+		"link check": linkchk,
 	}).Info("mac settings configured")
 
 	// join the network
@@ -109,7 +114,7 @@ func TestADR() {
 			log.Info("Timed out")
 			return
 		case <-tick:
-			rn2483.MacTx(true, 2, []byte("a"), nil)
+			rn2483.MacTx(confirmed, 2, []byte("a"), nil)
 
 			//if dr := rn2483.MacGetDataRate(); dr != dataRate {
 			//	log.WithField("data rate", dr).Info("new data rate")
