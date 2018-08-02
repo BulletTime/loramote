@@ -116,21 +116,13 @@ func TestADR() {
 			log.Info("Timed out")
 			return
 		case <-tick:
-			if counter > 0 && counter%20 == 0 {
-				rn2483.MacTx(true, 2, []byte("a"), nil)
-				log.WithFields(log.Fields{
-					"confirmed": true,
-					"port": 2,
-					"data": "a",
-				}).Infof("uplink frame %v", counter)
-			} else {
-				rn2483.MacTx(confirmed, 2, []byte("a"), nil)
-				log.WithFields(log.Fields{
-					"confirmed": confirmed,
-					"port": 2,
-					"data": "a",
-				}).Infof("uplink frame %v", counter)
-			}
+			rn2483.MacTx(confirmed, 2, []byte("a"), nil)
+			log.WithFields(log.Fields{
+				"confirmed": confirmed,
+				"port":      2,
+				"data":      "a",
+				"frame":     counter,
+			}).Info("uplink")
 
 			counter++
 		}

@@ -110,9 +110,10 @@ func TestDDR() {
 	rn2483.MacTx(false, 1, payload, ddrCallback)
 	log.WithFields(log.Fields{
 		"confirmed": false,
-		"port": 1,
-		"data": string(payload),
-	}).Infof("uplink frame %v", 0)
+		"port":      1,
+		"data":      string(payload),
+		"frame":     0,
+	}).Info("uplink")
 
 	// send message every 30 seconds
 	timeout := time.After(time.Minute*time.Duration(timeout) + time.Second*30)
@@ -129,9 +130,10 @@ func TestDDR() {
 			rn2483.MacTx(false, 2, []byte("a"), ddrCallback)
 			log.WithFields(log.Fields{
 				"confirmed": false,
-				"port": 2,
-				"data": "a",
-			}).Infof("uplink frame %v", counter)
+				"port":      2,
+				"data":      "a",
+				"frame":     counter,
+			}).Info("uplink")
 
 			counter++
 		}
