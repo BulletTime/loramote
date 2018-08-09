@@ -107,9 +107,9 @@ func TestDDR() {
 
 	// setup DDR call
 	payload := []byte(fmt.Sprintf("DDR|%.6f|%.6f", latitude, longitude))
-	rn2483.MacTx(true, 1, payload, ddrCallback)
+	rn2483.MacTx(false, 1, payload, ddrCallback)
 	log.WithFields(log.Fields{
-		"confirmed": true,
+		"confirmed": false,
 		"port":      1,
 		"data":      string(payload),
 		"frame":     0,
